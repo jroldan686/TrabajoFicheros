@@ -1,9 +1,11 @@
 package jrl.acdat.trabajoficheros;
 
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.media.Image;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -162,17 +164,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void descargarImagenes() {
+        final ProgressDialog progreso = new ProgressDialog(this);
         String url = String.valueOf(edtImagenes.getText());
         if(url != null) {
-            AsyncHttpClient client = new AsyncHttpClient();
-            client.get(url, new FileAsyncHttpResponseHandler(this) {
+            RestClient.get(url, new FileAsyncHttpResponseHandler(this) {
+                @Override
+                public void onStart() {
+                    super.onStart();
+                    progreso.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    progreso.setMessage("Conectando . . .");
+                    progreso.setCancelable(false);
+                    progreso.show();
+                }
+
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, File file) {
+                    progreso.dismiss();
                     Toast.makeText(MainActivity.this, "El fichero " + file.getPath() + " no se ha descargado", Toast.LENGTH_LONG).show();
                 }
 
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, File file) {
+                    progreso.dismiss();
                     //Toast.makeText(MainActivity.this, "El fichero " + file.getPath() + " se ha descargado con exito", Toast.LENGTH_SHORT).show();
 
                     Resultado resultado = leer(file, UTF8);
@@ -186,17 +199,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void descargarFrases() {
+        final ProgressDialog progreso = new ProgressDialog(this);
         String url = String.valueOf(edtFrases.getText());
         if(url != null) {
-            AsyncHttpClient client = new AsyncHttpClient();
-            client.get(url, new FileAsyncHttpResponseHandler(this) {
+            RestClient.get(url, new FileAsyncHttpResponseHandler(this) {
+                @Override
+                public void onStart() {
+                    super.onStart();
+                    progreso.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    progreso.setMessage("Conectando . . .");
+                    progreso.setCancelable(false);
+                    progreso.show();
+                }
+
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, File file) {
+                    progreso.dismiss();
                     Toast.makeText(MainActivity.this, "El fichero " + file.getPath() + " no se ha descargado", Toast.LENGTH_LONG).show();
                 }
 
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, File file) {
+                    progreso.dismiss();
                     //Toast.makeText(MainActivity.this, "El fichero " + file.getPath() + " se ha descargado con exito", Toast.LENGTH_SHORT).show();
 
                     Resultado resultado = leer(file, UTF8);
