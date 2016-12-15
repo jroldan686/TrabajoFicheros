@@ -17,6 +17,8 @@ import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.FileAsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.TextHttpResponseHandler;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -26,6 +28,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Date;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -33,10 +36,13 @@ public class MainActivity extends AppCompatActivity {
 
     //public static final String URLENLACES = "http://192.168.2.11/acceso/enlaces.txt";
     //public static final String URLFRASES = "http://192.168.2.11/acceso/frases.txt";
+    //public static final String URLERRORES = "http://192.168.2.11/acceso/errors.php";
     //public static final String URLENLACES = "http://192.168.1.5/curso1617/enlaces.txt";
     //public static final String URLFRASES = "http://192.168.1.5/curso1617/frases.txt";
+    //public static final String URLERRORES = "http://192.168.1.5/curso1617/errors.php";
     public static final String URLENLACES = "http://bitbits.hopto.org/ACDAT/enlaces.txt";
     public static final String URLFRASES = "http://bitbits.hopto.org/ACDAT/frases.txt";
+    public static final String URLERRORES = "http://bitbits.hopto.org/ACDAT/errors.php";
     public static final String UTF8 = "utf-8";
     public static final int SEGUNDO = 1000;
     public static final int TIEMPO = 5 * SEGUNDO;
@@ -81,6 +87,37 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void subirError(String mensajeError) {
+        final ProgressDialog progreso = new ProgressDialog(this);
+
+        String error = new Date().toString() + " -> " + mensajeError;
+        RequestParams params = new RequestParams();
+        params.put("error", error);
+        RestClient.post(URLERRORES, params, new TextHttpResponseHandler() {
+            @Override
+            public void onStart() {
+                super.onStart();
+                progreso.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progreso.setMessage("Conectando . . .");
+                progreso.setCancelable(false);
+                progreso.show();
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                progreso.dismiss();
+                Toast.makeText(MainActivity.this, "El error " + responseString +
+                        " no se ha subido al Servidor", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                progreso.dismiss();
+                Toast.makeText(MainActivity.this, "El error " + responseString +
+                 " se ha subido con exito al Servidor", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private Resultado leer(File fichero, String codigo) {
         FileInputStream fis = null;
         InputStreamReader isw = null;
@@ -99,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
             Log.e("Error", e.getMessage());
             resultado.setCodigo(false);
             resultado.setMensaje(e.getMessage());
+            subirError(e.getMessage());
         } finally {
             try {
                 if (in != null) {
@@ -109,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("Error al cerrar", e.getMessage());
                 resultado.setCodigo(false);
                 resultado.setMensaje(e.getMessage());
+                subirError(e.getMessage());
             }
         }
         return resultado;
@@ -140,9 +179,11 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void onError() {
-                                Toast.makeText(MainActivity.this, "La imagen de la ruta " +
+                                String mensaje = "La imagen de la ruta " +
                                         urlsImagenes[posicionImagen % urlsImagenes.length] +
-                                        " no se ha descargado", Toast.LENGTH_LONG).show();
+                                        " no se ha descargado";
+                                Toast.makeText(MainActivity.this, mensaje, Toast.LENGTH_LONG).show();
+                                subirError(mensaje);
                                 contadorImagenes(urlsImagenes, TIEMPO, milisegundos);
                             }
                         });
@@ -186,8 +227,9 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, File file) {
                     progreso.dismiss();
-                    Toast.makeText(MainActivity.this, "El fichero " + file.getPath() +
-                            " no se ha descargado", Toast.LENGTH_LONG).show();
+                    String mensaje = "El fichero " + file.getPath() + " no se ha descargado";
+                    Toast.makeText(MainActivity.this, mensaje, Toast.LENGTH_LONG).show();
+                    subirError(mensaje);
                 }
 
                 @Override
@@ -202,7 +244,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         } else {
-            Toast.makeText(this, "La ruta de las imagenes esta vacia", Toast.LENGTH_LONG).show();
+            String mensaje = "La ruta de las imagenes esta vacia";
+            Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show();
+            subirError(mensaje);
         }
     }
 
@@ -223,8 +267,9 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, File file) {
                     progreso.dismiss();
-                    Toast.makeText(MainActivity.this, "El fichero " + file.getPath() +
-                            " no se ha descargado", Toast.LENGTH_LONG).show();
+                    String mensaje = "El fichero " + file.getPath() + " no se ha descargado";
+                    Toast.makeText(MainActivity.this, mensaje, Toast.LENGTH_LONG).show();
+                    subirError(mensaje);
                 }
 
                 @Override
@@ -239,7 +284,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         } else {
-            Toast.makeText(this, "La ruta de las frases esta vacia", Toast.LENGTH_LONG).show();
+            String mensaje = "La ruta de las frases esta vacia";
+            Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show();
+            subirError(mensaje);
         }
     }
 }
