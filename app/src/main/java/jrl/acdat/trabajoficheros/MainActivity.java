@@ -1,4 +1,6 @@
 package jrl.acdat.trabajoficheros;
+
+import android.graphics.Bitmap;
 import android.media.Image;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -27,6 +29,12 @@ import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends AppCompatActivity {
 
+    //public static final String URLENLACES = "http://192.168.2.11/acceso/enlaces.txt";
+    //public static final String URLFRASES = "http://192.168.2.11/acceso/frases.txt";
+    //public static final String URLENLACES = "http://192.168.1.5/curso1617/enlaces.txt";
+    //public static final String URLFRASES = "http://192.168.1.5/curso1617/frases.txt";
+    public static final String URLENLACES = "http://bitbits.hopto.org/ACDAT/enlaces.txt";
+    public static final String URLFRASES = "http://bitbits.hopto.org/ACDAT/frases.txt";
     public static final String UTF8 = "utf-8";
     public static final int SEGUNDO = 1000;
     public static final int TIEMPO = 5 * SEGUNDO;
@@ -38,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     Memoria memoria;
     StringBuilder frases;
     long intervalo = 1;
+    int posicionImagen = 0;
+    int posicionFrase = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,25 +69,21 @@ public class MainActivity extends AppCompatActivity {
         memoria = new Memoria(this);
         frases = new StringBuilder();
 
-        edtImagenes.setText("http://192.168.2.11/acceso/enlaces.txt");
-        edtFrases.setText("http://192.168.2.11/acceso/frases.txt");
+        edtImagenes.setText(URLENLACES);
+        edtFrases.setText(URLFRASES);
 
         try {
             intervalo = Long.valueOf(memoria.leerRaw("intervalo").getContenido());
         } catch (Exception e) {
-            Toast.makeText(this, "No se ha podido leer el fichero intervalo.txt", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No se ha podido leer el fichero intervalo.txt", Toast.LENGTH_LONG).show();
         }
-
-        //StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitNetwork().build());
     }
 
     private Resultado leer(File fichero, String codigo) {
         FileInputStream fis = null;
         InputStreamReader isw = null;
         BufferedReader in = null;
-        //String linea;
         StringBuilder miCadena = new StringBuilder();
-        //String codigo = "UTF-8";
         Resultado resultado = new Resultado();
         int n;
         resultado.setCodigo(true);
@@ -87,8 +93,6 @@ public class MainActivity extends AppCompatActivity {
             in = new BufferedReader(isw);
             while ((n = in.read()) != -1)
                 miCadena.append((char) n);
-            //while ((linea = in.readLine()) != null)
-            //miCadena.append(linea).append('\n');Leer de un fichero en memoria interna (III)
         } catch (IOException e) {
             Log.e("Error", e.getMessage());
             resultado.setCodigo(false);
@@ -108,6 +112,55 @@ public class MainActivity extends AppCompatActivity {
         return resultado;
     }
 
+    private void contadorImagenes(final String[] urlsImagenes) {
+
+        new CountDownTimer(TIEMPO, intervalo * SEGUNDO) {
+
+            @Override
+            public void onTick(long l) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                Picasso.with(MainActivity.this)
+                        .load(urlsImagenes[posicionImagen++ % urlsImagenes.length])
+                        .placeholder(R.drawable.descargar)
+                        .error(R.drawable.error)
+                        .into(imgvDescarga, new Callback() {
+
+                            @Override
+                            public void onSuccess() {
+                                contadorImagenes(urlsImagenes);
+                            }
+
+                            @Override
+                            public void onError() {
+                                Toast.makeText(MainActivity.this, "La imagen de la ruta " + urlsImagenes[posicionImagen % urlsImagenes.length] + " no se ha descargado", Toast.LENGTH_LONG).show();
+                                contadorImagenes(urlsImagenes);
+                            }
+                        });
+            }
+        }.start();
+    }
+
+    private void contadorFrases(final String[] frases) {
+
+        new CountDownTimer(TIEMPO, intervalo * SEGUNDO) {
+
+            @Override
+            public void onTick(long l) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                    txvDescarga.setText(frases[posicionFrase++ % frases.length]);
+                    contadorFrases(frases);
+            }
+        }.start();
+    }
+
     private void descargarImagenes() {
         String url = String.valueOf(edtImagenes.getText());
         if(url != null) {
@@ -115,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
             client.get(url, new FileAsyncHttpResponseHandler(this) {
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, File file) {
-                    Toast.makeText(MainActivity.this, "El fichero " + file.getPath() + " no se ha descargado", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "El fichero " + file.getPath() + " no se ha descargado", Toast.LENGTH_LONG).show();
                 }
 
                 @Override
@@ -123,53 +176,12 @@ public class MainActivity extends AppCompatActivity {
                     //Toast.makeText(MainActivity.this, "El fichero " + file.getPath() + " se ha descargado con exito", Toast.LENGTH_SHORT).show();
 
                     Resultado resultado = leer(file, UTF8);
-                    final String[] urlsImagenes = resultado.getContenido().split("\n");
-
-                    for(int i = 0; i < urlsImagenes.length; i++) {
-                        final int numImagen = i;
-                        new CountDownTimer(TIEMPO, intervalo * SEGUNDO) {
-
-                            @Override
-                            public void onTick(long l) {
-
-                            }
-
-                            @Override
-                            public void onFinish() {
-                                Picasso.with(MainActivity.this)
-                                        .load(urlsImagenes[numImagen])
-                                        .placeholder(R.drawable.descargar)
-                                        .error(R.drawable.error)
-                                        .into(imgvDescarga, new Callback() {
-                                            @Override
-                                            public void onSuccess() {
-
-                                            }
-
-                                            @Override
-                                            public void onError() {
-                                                Toast.makeText(MainActivity.this, "La imagen de la ruta " + urlsImagenes[numImagen] + " no se ha descargado", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                            }
-                        }.start();
-                    }
-                    /*
-                        my_button.setBackgroundResource(R.drawable.icon);
-
-                        // Execute some code after 2 seconds have passed
-                        Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                my_button.setBackgroundResource(R.drawable.defaultcard);
-                            }
-                        }, 2000);
-                     */
+                    String[] urlsImagenes = resultado.getContenido().split("\n");
+                    contadorImagenes(urlsImagenes);
                 }
             });
         } else {
-            Toast.makeText(this, "La ruta de las imagenes esta vacia", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "La ruta de las imagenes esta vacia", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -180,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
             client.get(url, new FileAsyncHttpResponseHandler(this) {
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, File file) {
-                    Toast.makeText(MainActivity.this, "El fichero " + file.getPath() + " no se ha descargado", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "El fichero " + file.getPath() + " no se ha descargado", Toast.LENGTH_LONG).show();
                 }
 
                 @Override
@@ -189,12 +201,11 @@ public class MainActivity extends AppCompatActivity {
 
                     Resultado resultado = leer(file, UTF8);
                     String[] frases = resultado.getContenido().split("\n");
-                    for(int i = 0; i < frases.length; i++)
-                        txvDescarga.setText(frases[i]);
+                    contadorFrases(frases);
                 }
             });
         } else {
-            Toast.makeText(this, "La ruta de las frases esta vacia", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "La ruta de las frases esta vacia", Toast.LENGTH_LONG).show();
         }
     }
 }

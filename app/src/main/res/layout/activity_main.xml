@@ -48,16 +48,18 @@
         android:layout_gravity="center_horizontal" />
 
     <ImageView
-        android:layout_width="260dp"
-        android:layout_height="260dp"
+        android:layout_width="230dp"
+        android:layout_height="230dp"
         android:id="@+id/imgvDescarga"
         android:layout_gravity="center_horizontal"
-        android:src="@drawable/descargar"/>
+        android:src="@android:drawable/ic_menu_gallery"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/txvDescarga"
         android:layout_gravity="center_horizontal"
-        android:text="Las frases se mostraran aqui" />
+        android:text="Las frases se mostraran aqui"
+        android:textStyle="normal|bold"
+        android:textSize="16sp" />
 </LinearLayout>
