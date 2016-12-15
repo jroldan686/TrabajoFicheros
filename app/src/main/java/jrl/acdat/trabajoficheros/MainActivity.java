@@ -114,9 +114,11 @@ public class MainActivity extends AppCompatActivity {
         return resultado;
     }
 
-    private void contadorImagenes(final String[] urlsImagenes) {
+    private void contadorImagenes(final String[] urlsImagenes, int tiempo, long interval) {
 
-        new CountDownTimer(TIEMPO, intervalo * SEGUNDO) {
+        final long milisegundos = intervalo;
+
+        new CountDownTimer(tiempo, interval) {
 
             @Override
             public void onTick(long l) {
@@ -133,22 +135,26 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void onSuccess() {
-                                contadorImagenes(urlsImagenes);
+                                contadorImagenes(urlsImagenes, TIEMPO, milisegundos);
                             }
 
                             @Override
                             public void onError() {
-                                Toast.makeText(MainActivity.this, "La imagen de la ruta " + urlsImagenes[posicionImagen % urlsImagenes.length] + " no se ha descargado", Toast.LENGTH_LONG).show();
-                                contadorImagenes(urlsImagenes);
+                                Toast.makeText(MainActivity.this, "La imagen de la ruta " +
+                                        urlsImagenes[posicionImagen % urlsImagenes.length] +
+                                        " no se ha descargado", Toast.LENGTH_LONG).show();
+                                contadorImagenes(urlsImagenes, TIEMPO, milisegundos);
                             }
                         });
             }
         }.start();
     }
 
-    private void contadorFrases(final String[] frases) {
+    private void contadorFrases(final String[] frases, int tiempo, long interval) {
 
-        new CountDownTimer(TIEMPO, intervalo * SEGUNDO) {
+        final long milisegundos = intervalo;
+
+        new CountDownTimer(tiempo, interval) {
 
             @Override
             public void onTick(long l) {
@@ -158,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFinish() {
                     txvDescarga.setText(frases[posicionFrase++ % frases.length]);
-                    contadorFrases(frases);
+                    contadorFrases(frases, TIEMPO, milisegundos);
             }
         }.start();
     }
@@ -180,17 +186,19 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, File file) {
                     progreso.dismiss();
-                    Toast.makeText(MainActivity.this, "El fichero " + file.getPath() + " no se ha descargado", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "El fichero " + file.getPath() +
+                            " no se ha descargado", Toast.LENGTH_LONG).show();
                 }
 
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, File file) {
                     progreso.dismiss();
-                    //Toast.makeText(MainActivity.this, "El fichero " + file.getPath() + " se ha descargado con exito", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MainActivity.this, "El fichero " + file.getPath() +
+                    // " se ha descargado con exito", Toast.LENGTH_SHORT).show();
 
                     Resultado resultado = leer(file, UTF8);
                     String[] urlsImagenes = resultado.getContenido().split("\n");
-                    contadorImagenes(urlsImagenes);
+                    contadorImagenes(urlsImagenes, 0, 0);
                 }
             });
         } else {
@@ -215,17 +223,19 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, File file) {
                     progreso.dismiss();
-                    Toast.makeText(MainActivity.this, "El fichero " + file.getPath() + " no se ha descargado", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "El fichero " + file.getPath() +
+                            " no se ha descargado", Toast.LENGTH_LONG).show();
                 }
 
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, File file) {
                     progreso.dismiss();
-                    //Toast.makeText(MainActivity.this, "El fichero " + file.getPath() + " se ha descargado con exito", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MainActivity.this, "El fichero " + file.getPath() +
+                    // " se ha descargado con exito", Toast.LENGTH_SHORT).show();
 
                     Resultado resultado = leer(file, UTF8);
                     String[] frases = resultado.getContenido().split("\n");
-                    contadorFrases(frases);
+                    contadorFrases(frases, 0, 0);
                 }
             });
         } else {
