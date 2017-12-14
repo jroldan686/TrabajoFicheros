@@ -36,7 +36,11 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String FICHERORAW = "intervalo";
     public static final String EXTENSIONFICHERORAW = ".txt";
+<<<<<<< HEAD
     public static final String FICHEROENLACES = "imagenes.txt";
+=======
+    public static final String FICHEROENLACES = "enlaces.txt";
+>>>>>>> d47b8e87a391c5510767ad3bf415c22456bd6156
     public static final String FICHEROFRASES = "frases.txt";
 
     public static final String UTF8 = "utf-8";
