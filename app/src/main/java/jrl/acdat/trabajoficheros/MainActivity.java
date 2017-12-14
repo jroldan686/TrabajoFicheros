@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String FICHERORAW = "intervalo";
     public static final String EXTENSIONFICHERORAW = ".txt";
-    public static final String FICHEROENLACES = "imagenes.txt";
+    public static final String FICHEROIMAGENES = "imagenes.txt";
     public static final String FICHEROFRASES = "frases.txt";
 
     public static final String UTF8 = "utf-8";
@@ -229,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, File file) {
                     progreso.dismiss();
-                    String mensaje = "El fichero \"" + FICHEROENLACES + "\" no se ha descargado";
+                    String mensaje = "El fichero \"" + FICHEROIMAGENES + "\" no se ha descargado";
                     Toast.makeText(MainActivity.this, mensaje, Toast.LENGTH_LONG).show();
                     subirError(mensaje);
                 }
