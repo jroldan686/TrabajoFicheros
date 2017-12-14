@@ -2,11 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-<<<<<<< HEAD
-    buildToolsVersion '26.0.2'
-=======
-    buildToolsVersion '22.0.1'
->>>>>>> d47b8e87a391c5510767ad3bf415c22456bd6156
+    buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId "jrl.acdat.trabajoficheros"
         minSdkVersion 16
